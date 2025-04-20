@@ -110,32 +110,30 @@ if (longShortResult.success) {
 
 }
   // Xử lý dữ liệu Liquidation
-if (liquidationResult.success) {
-  const current = liquidationResult.history[0];
+  if (liquidationResult.success) {
+    const current = liquidationResult.history[0];
   
-  // Chuyển đổi thời gian từ timestamp
-  const liquidationTime = new Date(current.t * 1000);  // Chuyển timestamp từ giây sang milliseconds
-  const vietnamTime = new Date(liquidationTime.getTime() + (7 * 60 * 60 * 1000)); // Cộng thêm 7 giờ (chuyển sang giờ Việt Nam)
-  
-  // Định dạng thời gian theo kiểu Việt Nam
-  const formattedTime = vietnamTime.toLocaleString('vi-VN', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'numeric', 
-      day: 'numeric', 
-      hour: 'numeric', 
-      minute: 'numeric', 
-      second: 'numeric', 
-      hour12: false 
-  });
+    // Tính thời gian VN từ timestamp
+    const dateVN = new Date(current.timestamp * 1000);  // KHÔNG +7*3600
 
-  // Tạo thông báo
-  message += ` ✔ <b>Liquidation</b>:\n`;
-  message += `   ↳ Long: <i>${Math.round(current.long).toLocaleString('vi-VN')}</i> || Short: <i>${Math.round(current.short).toLocaleString('vi-VN')}</i>\n`;
-  message += `   ↳ Time: <i>${formattedTime}</i>\n\n`; // Thêm thời gian vào thông báo
-} else {
-  message += `${liquidationResult.error}\n\n`;
-}
+const hh = String(dateVN.getHours()).padStart(2, '0');
+const mm = String(dateVN.getMinutes()).padStart(2, '0');
+const ss = String(dateVN.getSeconds()).padStart(2, '0');
+const day = dateVN.getDate();
+const month = dateVN.getMonth() + 1;
+const year = dateVN.getFullYear();
+
+const formattedTime = `🕒 Cập nhật: ${hh}:${mm}:${ss} ${day}/${month}/${year}`;
+
+  
+    message += `✔ <b>Liquidation</b>:\n`;
+    message += `   ↳ Long: <i>${Math.round(current.long).toLocaleString('vi-VN')}</i> || Short: <i>${Math.round(current.short).toLocaleString('vi-VN')}</i>\n`;
+    message += `${formattedTime}\n`;
+
+  } else {
+    message += `${liquidationResult.error}\n\n`;
+  }
+  
 
   // Gửi tin nhắn cho người dùng
   ctx.reply(message, { parse_mode: 'HTML' });

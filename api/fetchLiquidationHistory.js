@@ -24,7 +24,7 @@ async function fetchLiquidationHistory(symbol, from, to) {
         success: true,
         symbol,
         history: data[0].history.map(item => ({
-          timestamp: new Date(item.t * 1000).toLocaleString(),
+          timestamp: item.t, // 
           long: item.l,
           short: item.s,
         }))
