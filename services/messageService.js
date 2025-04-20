@@ -79,8 +79,7 @@ async function sendFullMarketDataMessage(ctx, symbol, time) {
   }
 
   // In ra log để kiểm tra giá trị timestamp của 'from' và 'to'
-  console.log("From (timestamp):", from);
-  console.log("To (timestamp):", to);
+  
 
   // Các hàm lấy dữ liệu thị trường khác như Funding Rate, Open Interest, v.v.
   const fundingResult = await fetchFundingRate(symbol, from, to);
@@ -159,7 +158,6 @@ if (liquidationResult.success) {
   const current = liquidationResult.history[0];
   
 
-  console.log("current",current);
   
   // Chuyển đổi timestamp thành giờ Việt Nam
   const vietnamTime = convertToVietnamTime(current.timestamp);
@@ -167,7 +165,7 @@ if (liquidationResult.success) {
   // Thêm thông tin vào message
   message += `✔ <b>Liquidation</b>:\n`;
   message += `   ↳ Long: <i>${Math.round(current.long).toLocaleString('vi-VN')}</i> || Short: <i>${Math.round(current.short).toLocaleString('vi-VN')}</i>\n`;
-  message += `   ↳ Thời gian: <i>${vietnamTime}</i>\n`; // Thêm thông tin thời gian vào
+  message += `   ↳ <i>${vietnamTime}</i>\n`; // Thêm thông tin thời gian vào
 } else {
   message += `${liquidationResult.error}\n\n`;
 }
