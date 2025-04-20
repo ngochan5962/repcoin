@@ -86,19 +86,20 @@ async function sendFullMarketDataMessage(ctx, symbol, time) {
     message += `≫ <b>Funding Rate</b>: <i>${fundingResult.close}</i>\n\n`;
   }
 
-  // Xử lý Open Interest
-  if (oiResult.success) {
-    const currentOpenInterest = oiResult.history[0].close;  // Lấy giá trị OI hiện tại
-    const previousOpenInterest = oiResult.history.length > 1 ? oiResult.history[1].close : currentOpenInterest;  // Lấy giá trị OI trước đó (nếu có)
+ // Xử lý Open Interest
+if (oiResult.success) {
+  const openInterestOpen = oiResult.history[0].open;  // Giá trị Open Interest tại thời điểm "Open"
+  const openInterestClose = oiResult.history[0].close;  // Giá trị Open Interest tại thời điểm "Close"
 
-    // Tính phần trăm thay đổi của Open Interest
-    const oiChangePercent = ((currentOpenInterest - previousOpenInterest) / previousOpenInterest) * 100;
-    const oiChange = oiChangePercent >= 0 ? `⏫ +${oiChangePercent.toFixed(2)}%` : `⏬ ${oiChangePercent.toFixed(2)}%`;
+  // Tính phần trăm thay đổi giữa giá trị Open và Close
+  const oiChangePercent = ((openInterestClose - openInterestOpen) / openInterestOpen) * 100;
+  const oiChange = oiChangePercent >= 0 ? `⏫ +${oiChangePercent.toFixed(2)}%` : `⏬ ${oiChangePercent.toFixed(2)}%`;
 
-    message += `ᯓ★ Open Interest: <i>${oiChange}</i>\n`;
-    message += `   ↳ Open: <i>${Math.round(oiResult.history[0].open).toLocaleString('vi-VN')}</i>\n`;
-    message += `   ↳ Close: <i>${Math.round(currentOpenInterest).toLocaleString('vi-VN')}</i>\n\n`;
-  }
+  message += `ᯓ★ Open Interest: <i>${oiChange}</i>\n`;
+  message += `   ↳ Open: <i>${Math.round(openInterestOpen).toLocaleString('vi-VN')}</i>\n`;
+  message += `   ↳ Close: <i>${Math.round(openInterestClose).toLocaleString('vi-VN')}</i>\n`;
+}
+
 // Xử lý dữ liệu Long-Short Ratio
 if (longShortResult.success) {
   const current = longShortResult.history[0];

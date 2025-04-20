@@ -36,6 +36,6 @@ async function fetchOpenInterest(symbol, from, to) {
       console.error("Lỗi khi gọi API OI:", err);
       return { success: false, error: "❌ Lỗi khi gọi API Open Interest." };
     }
-  }
+}
 
-  module.exports = fetchOpenInterest;
+module.exports = fetchOpenInterest;
