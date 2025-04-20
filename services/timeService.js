@@ -1,29 +1,22 @@
 const extractCoinSymbolAndTime = (text) => {
-  let upper = text.toUpperCase().trim();
+  const upper = text.toUpperCase().trim();
+  const parts = upper.split(/\s+/); // Tách theo khoảng trắng
 
-  // Bỏ hậu tố USDT nếu có (VD: NKNUSDT => NKN)
-  if (upper.endsWith("USDT")) {
-    upper = upper.slice(0, -4);
-  }
+  let symbol = parts[0] || null;
+  let time = parts[1] ? parseInt(parts[1], 10) : null;
 
-  // Trường hợp chỉ là symbol (vd: BTC)
-  if (/^[A-Z0-9]{1,10}$/.test(upper)) {
-    return { symbol: upper, time: null };
-  }
-
-  // Trường hợp là symbol kèm số giờ (vd: BTC 7, ETH 12h)
-  const matches = upper.match(/^([A-Z0-9]{1,10})\s*(\d{1,2})h?$/);
-  if (!matches) return { symbol: null, time: null };
-
-  let symbol = matches[1];
-  const time = parseInt(matches[2], 10);
-
-  // Bỏ USDT nếu người dùng nhập symbol kèm theo thời gian (VD: NKNUSDT 7 => NKN 7)
-  if (symbol.endsWith("USDT")) {
+  // Bỏ hậu tố USDT nếu có
+  if (symbol && symbol.endsWith("USDT")) {
     symbol = symbol.slice(0, -4);
   }
 
-  if (time < 0 || time > 23) {
+  // Validate symbol
+  if (!/^[A-Z0-9]{1,10}$/.test(symbol)) {
+    return { symbol: null, time: null };
+  }
+
+  // Validate time
+  if (time !== null && (isNaN(time) || time < 0 || time > 23)) {
     return { symbol, time: 'invalid' };
   }
 
