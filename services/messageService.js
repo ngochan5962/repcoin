@@ -97,7 +97,7 @@ if (oiResult.success) {
 
   message += `ᯓ★ Open Interest: <i>${oiChange}</i>\n`;
   message += `   ↳ Open: <i>${Math.round(openInterestOpen).toLocaleString('vi-VN')}</i>\n`;
-  message += `   ↳ Close: <i>${Math.round(openInterestClose).toLocaleString('vi-VN')}</i>\n`;
+  message += `   ↳ Close: <i>${Math.round(openInterestClose).toLocaleString('vi-VN')}</i>\n\n`;
 }
 
 // Xử lý dữ liệu Long-Short Ratio
@@ -110,13 +110,33 @@ if (longShortResult.success) {
 
 }
   // Xử lý dữ liệu Liquidation
-  if (liquidationResult.success) {
-    const current = liquidationResult.history[0];
-    message += ` ✔ <b>Liquidation</b>:\n`;
-    message += `   ↳ Long: <i>${Math.round(current.long).toLocaleString('vi-VN')}</i> || Short: <i>${Math.round(current.short).toLocaleString('vi-VN')}</i>\n`;
-  }else {
-    message += `${liquidationResult.error}\n\n`;
-  }
+if (liquidationResult.success) {
+  const current = liquidationResult.history[0];
+  
+  // Chuyển đổi thời gian từ timestamp
+  const liquidationTime = new Date(current.t * 1000);  // Chuyển timestamp từ giây sang milliseconds
+  const vietnamTime = new Date(liquidationTime.getTime() + (7 * 60 * 60 * 1000)); // Cộng thêm 7 giờ (chuyển sang giờ Việt Nam)
+  
+  // Định dạng thời gian theo kiểu Việt Nam
+  const formattedTime = vietnamTime.toLocaleString('vi-VN', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'numeric', 
+      day: 'numeric', 
+      hour: 'numeric', 
+      minute: 'numeric', 
+      second: 'numeric', 
+      hour12: false 
+  });
+
+  // Tạo thông báo
+  message += ` ✔ <b>Liquidation</b>:\n`;
+  message += `   ↳ Long: <i>${Math.round(current.long).toLocaleString('vi-VN')}</i> || Short: <i>${Math.round(current.short).toLocaleString('vi-VN')}</i>\n`;
+  message += `   ↳ Time: <i>${formattedTime}</i>\n\n`; // Thêm thời gian vào thông báo
+} else {
+  message += `${liquidationResult.error}\n\n`;
+}
+
   // Gửi tin nhắn cho người dùng
   ctx.reply(message, { parse_mode: 'HTML' });
 }
