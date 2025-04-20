@@ -1,0 +1,4 @@
+module.exports = {
+  BOT_TOKEN: "7640032809:AAGR2tINBy3rebm8kjMXPBWUSEz9D-C44MM",
+  COINALYZE_API_KEY: "484f4af7-9a4f-48c5-b59e-c605b1288d4d",
+};
