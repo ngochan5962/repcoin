@@ -4,6 +4,47 @@ const fetchLiquidationHistory = require("../api/fetchLiquidationHistory");
 const fetchLongShortRatio = require("../api/fetchLongShortRatio");
 const fetchOhlcvHistory = require("../api/fetchOhlcvHistory");
 
+// Chức năng chuyển đổi timestamp thành giờ Việt Nam
+function convertToVietnamTime(timestamp) {
+  // Kiểm tra xem timestamp có hợp lệ không
+  if (isNaN(timestamp) || timestamp <= 0) {
+      console.error('Timestamp không hợp lệ:', timestamp); // In ra để kiểm tra
+      return '🕒 Thời gian không hợp lệ';
+  }
+
+  const date = new Date(timestamp * 1000); // Chuyển timestamp từ giây thành milliseconds
+
+  // Kiểm tra nếu giá trị date không hợp lệ
+  if (isNaN(date.getTime())) {
+      console.error('Ngày không hợp lệ:', date); // In ra nếu ngày không hợp lệ
+      return '🕒 Thời gian không hợp lệ';
+  }
+
+  const options = {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      timeZone: 'Asia/Ho_Chi_Minh', // Múi giờ Việt Nam
+  };
+
+  try {
+      const formattedTime = new Intl.DateTimeFormat('vi-VN', options).format(date);
+
+      // Tách giờ, ngày tháng năm từ kết quả định dạng
+      const [hour, minute, second] = formattedTime.split(' ')[0].split(':');
+      const [day, month, year] = formattedTime.split(' ')[1].split('/');
+
+      // Trả về kết quả theo yêu cầu
+      return `🕒 Cập nhật: ${hour}:${minute}:${second} ${day}/${month}/${year}`;
+  } catch (error) {
+      console.error("Lỗi khi chuyển đổi thời gian:", error);
+      return '🕒 Thời gian không hợp lệ';
+  }
+}
+
+
+
+
+
 
 async function sendFullMarketDataMessage(ctx, symbol, time) {
   let from, to;
@@ -109,30 +150,29 @@ if (longShortResult.success) {
   message += `   ↳ Short: <i>${current.short.toFixed(1)}%</i>\n\n`;
 
 }
-  // Xử lý dữ liệu Liquidation
-  if (liquidationResult.success) {
-    const current = liquidationResult.history[0];
+// Chức năng chuyển đổi timestamp thành giờ Việt Nam
+
+
+// Xử lý dữ liệu Liquidation
+// Xử lý dữ liệu Liquidation
+if (liquidationResult.success) {
+  const current = liquidationResult.history[0];
   
-    // Tính thời gian VN từ timestamp
-    const dateVN = new Date(current.timestamp * 1000);  // KHÔNG +7*3600
 
-const hh = String(dateVN.getHours()).padStart(2, '0');
-const mm = String(dateVN.getMinutes()).padStart(2, '0');
-const ss = String(dateVN.getSeconds()).padStart(2, '0');
-const day = dateVN.getDate();
-const month = dateVN.getMonth() + 1;
-const year = dateVN.getFullYear();
+  console.log("current",current);
+  
+  // Chuyển đổi timestamp thành giờ Việt Nam
+  const vietnamTime = convertToVietnamTime(current.timestamp);
 
-const formattedTime = `🕒 Cập nhật: ${hh}:${mm}:${ss} ${day}/${month}/${year}`;
+  // Thêm thông tin vào message
+  message += `✔ <b>Liquidation</b>:\n`;
+  message += `   ↳ Long: <i>${Math.round(current.long).toLocaleString('vi-VN')}</i> || Short: <i>${Math.round(current.short).toLocaleString('vi-VN')}</i>\n`;
+  message += `   ↳ Thời gian: <i>${vietnamTime}</i>\n`; // Thêm thông tin thời gian vào
+} else {
+  message += `${liquidationResult.error}\n\n`;
+}
 
   
-    message += `✔ <b>Liquidation</b>:\n`;
-    message += `   ↳ Long: <i>${Math.round(current.long).toLocaleString('vi-VN')}</i> || Short: <i>${Math.round(current.short).toLocaleString('vi-VN')}</i>\n`;
-    message += `${formattedTime}\n`;
-
-  } else {
-    message += `${liquidationResult.error}\n\n`;
-  }
   
 
   // Gửi tin nhắn cho người dùng
